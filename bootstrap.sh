@@ -120,10 +120,22 @@ install_cask_packages()
   done
 }
 
+git_setup()
+{
+  git config --global user.name "Artem Yakimenko"
+  git config --global user.email code@temik.me
+
+  git config --global push.default simple
+  git config --global core.excludesfile '~/.gitignore_global'
+}
+
 debug "Launching with settings:"
 debug "with_puppet=$with_puppet"
 debug "without_homebrew=$without_homebrew"
 debug "without_cask=$without_cask"
+
+echo "Setting up git..."
+git_setup
 
 #Install puppet if flag is supplied
 if [[ $with_puppet == true ]]; then
