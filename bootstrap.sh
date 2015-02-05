@@ -23,7 +23,6 @@ done
 # Default settings
 with_puppet=${with_puppet:-false}
 without_homebrew=${without_homebrew:-false}
-sleep_timeout=5
 
 debug()
 {
@@ -33,7 +32,7 @@ debug()
 timeout()
 {
 	#Regulates timeout after output-intensive commands
-	sleep $timeout
+	sleep 5
 }
 
 show_help()
@@ -43,6 +42,7 @@ show_help()
 	echo ""
 	echo "Options:"
 	echo "--with-puppet - Install puppet client on the machine"
+	echo "--without-homebrew - Do not set up homebrew or homebrew-cask"
 
   exit 0
 }
@@ -107,12 +107,23 @@ install_cask()
 
 install_cask_packages()
 {
-	brew cask install google-chrome iterm2-beta skype alfred
+	echo "Installing cask..."
+	# TODO: Make a configuration for the list of apps in the beginning
+	brew cask install --appdir=/Applications google-chrome iterm2-beta skype alfred sublime-text3 dropbox google-drive
+
+	timeout
+
+	echo "Copying apps to /Applications..."
+	# We're piggybacking off cask to install the necessary apps and get the latest versions
+  find /opt/homebrew-cask/Caskroom -name "*.app" -type d -depth 3 | while read app_file_path; do
+  	cp -r $app_file_path /Applications
+  done
 }
 
 debug "Launching with settings:"
 debug "with_puppet=$with_puppet"
 debug "without_homebrew=$without_homebrew"
+debug "without_cask=$without_cask"
 
 #Install puppet if flag is supplied
 if [[ $with_puppet == true ]]; then
@@ -134,8 +145,11 @@ fi
 if [[ $without_homebrew == false ]]; then
   install_homebrew
   install_homebrew_packages
-fi
 
+  install_cask
+  install_cask_packages
+
+fi
 
 echo "All done!"
 
