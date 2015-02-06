@@ -37,7 +37,6 @@ timeout()
 
 show_help()
 {
-
   echo "Usage: `basename $0` [-h|--help] [-v|--verbose] [options]"
 	echo ""
 	echo "Options:"
@@ -109,7 +108,7 @@ install_cask_packages()
 {
 	echo "Installing cask..."
 	# TODO: Make a configuration for the list of apps in the beginning
-	brew cask install --appdir=/Applications google-chrome iterm2-beta skype alfred sublime-text3 dropbox google-drive
+	brew cask install --appdir=/Applications google-chrome iterm2-beta skype alfred sublime-text3 dropbox google-drive flux
 
 	timeout
 
@@ -160,7 +159,6 @@ if [[ $without_homebrew == false ]]; then
 
   install_cask
   install_cask_packages
-
 fi
 
 echo "All done!"
