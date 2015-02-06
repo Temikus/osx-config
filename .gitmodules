@@ -4,3 +4,6 @@
 [submodule "modules/puppet-brewcask"]
 	path = modules/puppet-brewcask
 	url = https://github.com/boxen/puppet-brewcask
+[submodule "oh-my-zsh"]
+	path = oh-my-zsh
+	url = https://github.com/Temikus/oh-my-zsh

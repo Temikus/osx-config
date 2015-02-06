@@ -31,6 +31,25 @@ debug()
 	[ "$verbose" ] && echo ">>> $*";
 }
 
+#################################
+##########Color output###########
+NORMAL=$(tput sgr0)
+GREEN=$(tput setaf 2; tput bold)
+YELLOW=$(tput setaf 3)
+RED=$(tput setaf 1)
+
+function red() {
+    echo -e "$RED$*$NORMAL"
+    }
+function green() {
+    echo -e "$GREEN$*$NORMAL"
+    }
+function yellow() {
+    echo -e "$YELLOW$*$NORMAL"
+    }
+
+#################################
+
 timeout()
 {
 	#Regulates timeout after output-intensive commands
@@ -128,6 +147,17 @@ git_setup()
 
   git config --global push.default simple
   git config --global core.excludesfile '~/.gitignore_global'
+}
+
+copy_oh_my_zsh_custom()
+{
+  cp ./oh-my-zsh/* ~/.oh-my-zsh/custom/ || { red 'Could not init submodules' ; exit 1; }
+}
+
+update_git_submodules()
+{
+	git submodule init || { red 'Could not init submodules' ; exit 1; }
+	git submodule update || { red 'Could not update submodules' ; exit 1; }
 }
 
 debug "Launching with settings:"
