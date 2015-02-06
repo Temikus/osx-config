@@ -1,0 +1,11 @@
+{
+	"font_size": 19,
+
+	//Set tabs to be Ruby-like by default
+  "tab_size": 2,
+  "translate_tabs_to_spaces": false,
+  "use_tab_stops": true,
+
+  //Trim whitespaces
+  "trim_trailing_white_space_on_save": true
+}

@@ -101,14 +101,14 @@ install_facter()
 
 run_puppet_manifests()
 {
-	echo "Running puppet manifests..."
+	yellow "Running puppet manifests..."
 	puppet apply --debug --modulepath=$puppet_modules_location $puppet_manifest_location
 }
 
 install_homebrew()
 {
-	echo "Installing Homebrew..."
-	Using the standard ruby install pipe.
+	yellow "Installing Homebrew..."
+	#Using the standard ruby install pipe.
 	ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
 	timeout
@@ -116,7 +116,8 @@ install_homebrew()
 
 install_homebrew_packages()
 {
-	brew install wget mtr autojump zsh-syntax-highlighting
+	yellow "Installing homebrew packages..."
+	brew install wget mtr autojump zsh-syntax-highlighting ack
 }
 
 install_cask()
@@ -127,21 +128,24 @@ install_cask()
 
 install_cask_packages()
 {
-	echo "Installing cask..."
+	yellow "Installing cask..."
 	# TODO: Make a configuration for the list of apps in the beginning
 	brew cask install --appdir=/Applications google-chrome iterm2-beta skype alfred sublime-text3 dropbox google-drive flux
 
 	timeout
 
-	echo "Copying apps to /Applications..."
+	yellow "Copying apps to /Applications..."
 	# We're piggybacking off cask to install the necessary apps and get the latest versions
   find /opt/homebrew-cask/Caskroom -name "*.app" -type d -depth 3 | while read app_file_path; do
-  	cp -r $app_file_path /Applications
+  	cp -r "$app_file_path" /Applications
   done
 }
 
 git_setup()
 {
+
+	yellow "Setting up git..."
+
   git config --global user.name "Artem Yakimenko"
   git config --global user.email code@temik.me
 
@@ -151,13 +155,35 @@ git_setup()
 
 copy_oh_my_zsh_custom()
 {
-  cp ./oh-my-zsh/* ~/.oh-my-zsh/custom/ || { red 'Could not init submodules' ; exit 1; }
+	yellow "Copying oh-my-zsh custom configs..."
+  cp -r ./oh-my-zsh/* ~/.oh-my-zsh/custom/ || { red 'Could not init submodules' ; exit 1; }
 }
 
 update_git_submodules()
 {
+
+	yellow "Setting up git submodules..."
+
 	git submodule init || { red 'Could not init submodules' ; exit 1; }
 	git submodule update || { red 'Could not update submodules' ; exit 1; }
+}
+
+setup_sublime_text()
+{
+
+	yellow "Copying sublime user config..."
+	cp ./configs/Preferences.sublime-settings ~/Library/Application\ Support/Sublime\ Text\ 3/Packages/User/Preferences.sublime-settings
+
+	yellow "Setting up Sublime puppet module..."
+  mkdir ~/Library/Application\ Support/Sublime\ Text\ 3/Packages/SublimePuppet
+  git clone https://github.com/russCloak/SublimePuppet.git ~/Library/Application\ Support/Sublime\ Text\ 3/Packages/SublimePuppet
+
+}
+
+setup_defaults()
+{
+	yellow "Setting up Mac defaults. This will require your password..."
+	./configs/defaults_mac.sh
 }
 
 debug "Launching with settings:"
@@ -167,8 +193,9 @@ debug "without_cask=$without_cask"
 debug "puppet_manifest_location=$puppet_manifest_location"
 debug "puppet_modules_location=$puppet_modules_location"
 
-echo "Setting up git..."
 git_setup
+update_git_submodules
+copy_oh_my_zsh_custom
 
 #Install puppet if flag is supplied
 if [[ $with_puppet == true ]]; then
@@ -195,6 +222,9 @@ if [[ $without_homebrew == false ]]; then
   install_cask_packages
 fi
 
-echo "All done!"
+setup_sublime_text
+setup_defaults
+
+echo "All done! Some changes will require a restart."
 
 exit 0
