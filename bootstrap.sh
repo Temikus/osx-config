@@ -23,6 +23,8 @@ done
 # Default settings
 with_puppet=${with_puppet:-false}
 without_homebrew=${without_homebrew:-false}
+puppet_manifest_location=${puppet_manifest_location:-"./puppet/appinstall.pp"}
+puppet_modules_location=${puppet_modules_location:-"./puppet/modules"}
 
 debug()
 {
@@ -81,7 +83,7 @@ install_facter()
 run_puppet_manifests()
 {
 	echo "Running puppet manifests..."
-	puppet apply --debug --modulepath=./modules appinstall.pp
+	puppet apply --debug --modulepath=$puppet_modules_location $puppet_manifest_location
 }
 
 install_homebrew()
@@ -132,6 +134,8 @@ debug "Launching with settings:"
 debug "with_puppet=$with_puppet"
 debug "without_homebrew=$without_homebrew"
 debug "without_cask=$without_cask"
+debug "puppet_manifest_location=$puppet_manifest_location"
+debug "puppet_modules_location=$puppet_modules_location"
 
 echo "Setting up git..."
 git_setup
