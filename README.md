@@ -13,5 +13,5 @@ Munki/Chef/Puppet, but still allowing to use them if needed.
 
 ## Additional options
 
-	--with-puppet - Install puppet client on the machine
-  --without-homebrew - Do not set up homebrew or homebrew-cask
+	--with-puppet - Install puppet client on the machine and run manifests
+	--without-homebrew - Do not set up homebrew or homebrew-cask
