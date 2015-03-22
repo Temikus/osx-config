@@ -171,7 +171,7 @@ git_setup()
 copy_oh_my_zsh_custom()
 {
   yellow "Copying oh-my-zsh custom configs..."
-  cp -r ./oh-my-zsh/* ~/.oh-my-zsh/custom/ || { red 'Could not init submodules' ; exit 1; }
+  cp -r ./oh-my-zsh/* ~/.oh-my-zsh/custom/ || { red 'Could not copy oh-my-zsh configs' ; exit 1; }
 }
 
 update_git_submodules()
