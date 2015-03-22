@@ -26,6 +26,10 @@ without_homebrew=${without_homebrew:-false}
 puppet_manifest_location=${puppet_manifest_location:-"./puppet/appinstall.pp"}
 puppet_modules_location=${puppet_modules_location:-"./puppet/modules"}
 
+# Packages to install
+$homebrew_packages=(wget mtr autojump zsh-syntax-highlighting ack watch)
+$kask_packages=(google-chrome iterm2-beta skype alfred sublime-text3 dropbox google-drive flux mplayerx ksdiff sourcetree)
+
 debug()
 {
   [ "$verbose" ] && echo ">>> $*";
@@ -117,7 +121,7 @@ install_homebrew()
 install_homebrew_packages()
 {
   yellow "Installing homebrew packages..."
-  brew install wget mtr autojump zsh-syntax-highlighting ack
+  brew install $homebrew_packages
 }
 
 install_cask()
@@ -128,17 +132,21 @@ install_cask()
 
 install_cask_packages()
 {
-  yellow "Installing cask..."
-  # TODO: Make a configuration for the list of apps in the beginning
-  brew cask install --appdir=/Applications google-chrome iterm2-beta skype alfred sublime-text3 dropbox google-drive flux
+  yellow "Installing cask packages..."
+  debug "Will install $kask_packages"
+  brew cask install $kask_packages
 
   timeout
 
   yellow "Copying apps to /Applications..."
   # We're piggybacking off cask to install the necessary apps and get the latest versions
   find /opt/homebrew-cask/Caskroom -name "*.app" -type d -depth 3 | while read app_file_path; do
+    debug "Copying $app_file_path to /Applications"
     cp -r "$app_file_path" /Applications
   done
+
+  brew kask zap $kask_packages
+
 }
 
 git_setup()
