@@ -27,8 +27,14 @@ puppet_manifest_location=${puppet_manifest_location:-"./puppet/appinstall.pp"}
 puppet_modules_location=${puppet_modules_location:-"./puppet/modules"}
 
 # Packages to install
-$homebrew_packages=(wget mtr autojump zsh-syntax-highlighting ack watch)
-$kask_packages=(google-chrome iterm2-beta skype alfred sublime-text3 dropbox google-drive flux mplayerx ksdiff sourcetree)
+homebrew_packages=(wget mtr autojump zsh-syntax-highlighting ack watch)
+kask_packages=(google-chrome iterm2-beta skype alfred sublime-text3 dropbox google-drive flux mplayerx ksdiff sourcetree)
+
+# Git settings
+git_config_global_user_name="Artem Yakimenko"
+git_config_global_user_email="code@temik.me"
+git_config_global_push_default='simple'
+git_config_global_core_excludesfile='~/.gitignore_global'
 
 debug()
 {
@@ -145,7 +151,7 @@ install_cask_packages()
     cp -r "$app_file_path" /Applications
   done
 
-  brew kask zap $kask_packages
+  brew cask zap $kask_packages
 
 }
 
@@ -154,11 +160,12 @@ git_setup()
 
   yellow "Setting up git..."
 
-  git config --global user.name "Artem Yakimenko"
-  git config --global user.email code@temik.me
+  git config --global user.name $git_config_global_user_name
+  git config --global user.email $git_config_global_user_email
 
-  git config --global push.default simple
-  git config --global core.excludesfile '~/.gitignore_global'
+  git config --global push.default $git_config_global_push_default
+  git config --global core.excludesfile $git_config_global_core_excludesfile
+
 }
 
 copy_oh_my_zsh_custom()
