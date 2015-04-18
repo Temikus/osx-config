@@ -28,7 +28,9 @@ puppet_modules_location=${puppet_modules_location:-"./puppet/modules"}
 
 # Packages to install
 homebrew_packages=(wget mtr autojump zsh-syntax-highlighting ack watch)
-kask_packages=(google-chrome iterm2-beta skype alfred sublime-text3 dropbox google-drive flux mplayerx ksdiff sourcetree)
+cask_packages=(google-chrome iterm2-beta skype alfred sublime-text3 dropbox google-drive flux mplayerx sourcetree)
+## Cask packages that are not installed into ~/Applications and don't need to be zapped
+cask_package_exceptions=(ksdiff)
 
 # Git settings
 git_config_global_user_name="Artem Yakimenko"
@@ -139,8 +141,8 @@ install_cask()
 install_cask_packages()
 {
   yellow "Installing cask packages..."
-  debug "Will install $kask_packages"
-  brew cask install $kask_packages
+  debug "Will install $cask_packages"
+  brew cask install $cask_packages
 
   timeout
 
@@ -151,7 +153,12 @@ install_cask_packages()
     cp -r "$app_file_path" /Applications
   done
 
-  brew cask zap $kask_packages
+  yellow "Zapping packages in ~/Applications"
+  brew cask zap $cask_packages
+
+  yellow "Installing cask exceptions"
+  debug "Will install $cask_exceptions"
+  brew cask install $cask_package_exceptions
 
 }
 
