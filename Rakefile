@@ -10,11 +10,11 @@ cask_packages = [ "google-chrome", "iterm2-beta", "skype", "alfred", "sublime-te
 ## Cask packages that are not installed into ~/Applications and don't need to be zapped
 cask_package_exceptions = ["ksdiff"]
 
-# # Git settings
-# git_config_global_user_name="Artem Yakimenko"
-# git_config_global_user_email="code@temik.me"
-# git_config_global_push_default='simple'
-# git_config_global_core_excludesfile='~/.gitignore_global'
+# Git settings
+git_config_global_user_name="Artem Yakimenko"
+git_config_global_user_email="code@temik.me"
+git_config_global_push_default='simple'
+git_config_global_core_excludesfile='~/.gitignore_global'
 
 
 # def timeout
@@ -121,18 +121,24 @@ namespace :cask do
   end
 end
 
-# git_setup()
-# {
+namespace :git do
+  desc "Set git settings"
+  task :configure => [:set_identity, :set_defaults]
 
-#   yellow "Setting up git..."
+  desc "Set Git identity"
+  task :set_identity do
+    $LOG.info("Setting up git identity...")
+    `git config --global user.name #{git_config_global_user_name}`
+    `git config --global user.email #{git_config_global_user_email}`
+  end
 
-#   git config --global user.name $git_config_global_user_name
-#   git config --global user.email $git_config_global_user_email
-
-#   git config --global push.default $git_config_global_push_default
-#   git config --global core.excludesfile $git_config_global_core_excludesfile
-
-# }
+  desc "Set Git defaults"
+  task :set_defaults do
+    $LOG.info("Setting up git settings...")
+    `git config --global user.name #{git_config_global_user_name}`
+    `git config --global user.email #{git_config_global_user_email}`
+  end
+end
 
 # copy_oh_my_zsh_custom()
 # {
