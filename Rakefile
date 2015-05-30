@@ -108,8 +108,7 @@ namespace :git do
   desc "Set Git defaults"
   task :set_defaults do
     $LOG.info("Setting up git settings...")
-    system("git config --global user.name #{git_config_global_user_name}")
-    system("git config --global user.email #{git_config_global_user_email}")
+    system("git config --global push.default simple}")
   end
 
 end
@@ -119,8 +118,9 @@ namespace :configs do
   task :all => [:sublime_text, :mac_defaults]
 
   task :sublime_text do
-    $LOG.info("Copying sublime user config...")
+    $LOG.info("Copying sublime config and installing package control...")
     system('cp ./configs/Preferences.sublime-settings ~/Library/Application\ Support/Sublime\ Text\ 3/Packages/User/Preferences.sublime-settings')
+    system('curl https://packagecontrol.io/Package%20Control.sublime-package -o ~/Library/Application\ Support/Sublime\ Text\ 3/Installed\ Packages/')
   end
 
   task :mac_defaults do
