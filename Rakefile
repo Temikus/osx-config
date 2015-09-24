@@ -5,8 +5,22 @@ $LOG = Logger.new(STDOUT)
 homebrew_prefix='\/Users\/temikus\/.homebrew'
 
 # Packages to install
-homebrew_packages = ['wget', 'mtr', 'autojump', 'zsh-syntax-highlighting', 'ack', 'watch']
-cask_packages = [ 'google-chrome', 'iterm2-beta', 'skype', 'alfred', 'sublime-text3', 'dropbox', 'google-drive', 'flux', 'mplayerx', 'sourcetree']
+homebrew_packages = ['wget',
+                     'mtr',
+                     'autojump',
+                     'zsh-syntax-highlighting',
+                     'ack',
+                     'watch']
+cask_packages = ['google-chrome',
+                 'iterm2-beta',
+                 'skype',
+                 'alfred',
+                 'sublime-text3',
+                 'dropbox',
+                 'google-drive',
+                 'flux',
+                 'mplayerx',
+                 'sourcetree']
 
 ## Cask packages that are not installed into ~/Applications and don't need to be zapped
 cask_package_exceptions = ['ksdiff']
@@ -108,7 +122,8 @@ namespace :git do
   desc 'Set Git defaults'
   task :set_defaults do
     $LOG.info('Setting up git settings...')
-    system('git config --global push.default simple}')
+    system("git config --global push.default #{git_config_global_push_default}")
+    system("git config --global core.excludesfile #{git_config_global_core_excludesfile}")
   end
 
 end
