@@ -41,4 +41,11 @@ defaults write com.google.Chrome.canary AppleEnableSwipeNavigateWithScrolls -boo
 # Allow Apps folder
 defaults write com.runningwithcrayons.Alfred-Preferences dropbox.allowappsfolder -bool TRUE
 # Set sync folder
-defaults write com.runningwithcrayons.Alfred-Preferences syncfolder -string "~/Dropbox/Apps/Alfred"
+defaults write com.runningwithcrayons.Alfred-Preferences syncfolder -string "$HOME/Dropbox/Apps/Alfred"
+
+###############################################################################
+# Setup iTerm                                                                 #
+###############################################################################
+
+# Set sync folder
+defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string "$HOME/Dropbox/Apps/iTerm" 
