@@ -19,7 +19,7 @@ cask_packages = ['google-chrome',
                  'dropbox',
                  'google-drive',
                  'flux',
-                 'mplayerx',
+                 'mpv',
                  'sourcetree']
 
 ## Cask packages that are not installed into ~/Applications and don't need to be zapped
