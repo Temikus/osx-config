@@ -44,7 +44,12 @@ namespace :preinstall do
     $LOG.info('Setting up git submodules...')
     system('git submodule update --init --recursive')
   end
-
+  
+  desc 'Install Xcode CLI tools'
+  task :xcode_select do
+    $LOG.info('Installing Xcode CLI tools...')
+    system('xcode-select --install')
+  end
 end
 
 namespace :homebrew do
