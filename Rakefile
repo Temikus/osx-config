@@ -32,7 +32,7 @@ git_config_global_push_default='simple'
 git_config_global_core_excludesfile='~/.gitignore_global'
 
 #desc 'Install the whole shebang'
-#task :install => [:'preinstall:all', :'homebrew:install', :'cask:install', :config:'all', :'git:configure']
+task :install => [:'preinstall:all', :'homebrew:install', :'cask:install', :'config:all', :'git:configure']
 
 namespace :preinstall do
 
@@ -78,19 +78,12 @@ end
 
 namespace :cask do
   desc 'Install Cask and packages'
-  task :install => [:install_cask, :install_cask_packages ]
-
-  desc 'Install Homebrew'
-  task :install_cask do
-    $LOG.info('Installing Cask...')
-    system('brew install caskroom/cask/brew-cask')
-    system('brew tap caskroom/versions')
-  end
+  task :install => [:install_cask_packages ]
 
   task :install_cask_packages do
     $LOG.info('Installing Cask packages...')
     cask_packages.each do |package|
-      system("brew cask install #{package}")
+      system("brew cask install --no-binaries #{package}")
     end
 
     $LOG.info('Copying apps to /Applications...')
