@@ -29,7 +29,7 @@ git_config_global_push_default='simple'
 git_config_global_core_excludesfile='~/.gitignore_global'
 
 #desc 'Install the whole shebang'
-#task :install => [:'preinstall:all', :'homebrew:install', :'cask:install', :config:'all', :'git:configure']
+task :install => [:'preinstall:all', :'homebrew:install', :'cask:install', :'config:all', :'git:configure']
 
 namespace :preinstall do
 
@@ -42,6 +42,11 @@ namespace :preinstall do
     system('git submodule update --init --recursive')
   end
 
+  desc 'Install Xcode CLI tools'
+  task :xcode_select do
+    $LOG.info('Installing Xcode CLI tools...')
+    system('xcode-select --install')
+  end
 end
 
 namespace :homebrew do
@@ -72,7 +77,7 @@ namespace :cask do
   desc 'Install Cask and packages'
   task :install => [:install_cask, :install_cask_packages ]
 
-  desc 'Install Homebrew'
+  desc 'Install Homebrew Cask'
   task :install_cask do
     $LOG_GLOBAL.info('Installing Cask...')
     system('brew install caskroom/cask/brew-cask')
@@ -82,7 +87,7 @@ namespace :cask do
   task :install_cask_packages do
     $LOG_GLOBAL.info('Installing Cask packages...')
     cask_packages.each do |package|
-      system("brew cask install #{package}")
+      system("brew cask install --no-binaries #{package}")
     end
 
     $LOG_GLOBAL.info('Copying apps to /Applications...')
@@ -141,4 +146,3 @@ namespace :configs do
   end
 
 end
-
