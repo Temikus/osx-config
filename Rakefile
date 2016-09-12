@@ -11,14 +11,17 @@ homebrew_packages = ['wget',
                      'autojump',
                      'zsh-syntax-highlighting',
                      'ack',
-                     'watch']
-cask_packages = ['mpv',
-                 'skype',
+                     'watch',
+                     'fzf',
+                     'mpv']
+cask_packages = ['skype',
                  'alfred',
-                 'sublime-text3',
+                 'atom',
                  'dropbox',
                  'flux',
-                 'sourcetree']
+                 'sourcetree',
+                 'iterm2-beta',
+                 'rubymine']
 
 ## Cask packages that are not installed into ~/Applications and don't need to be zapped
 cask_package_exceptions = ['ksdiff']
