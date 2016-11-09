@@ -1,7 +1,7 @@
 require 'logger'
 $LOG_GLOBAL = Logger.new(STDOUT)
 
-#Homebrew prefix (SED escaped):
+# Homebrew prefix (SED escaped):
 homebrew_prefix='\/Users\/temikus\/.homebrew'
 
 # Packages to install
@@ -104,7 +104,7 @@ namespace :cask do
 
     $LOG_GLOBAL.info('Installing Cask exceptions')
     cask_package_exceptions.each do |package|
-       system("brew cask install #{package}")
+      system("brew cask install #{package}")
     end
   end
 
@@ -126,8 +126,8 @@ namespace :git do
     $LOG_GLOBAL.info('Setting up git settings...')
     system("git config --global push.default #{git_config_global_push_default}")
     system("git config --global core.excludesfile #{git_config_global_core_excludesfile}")
+    system("git config --global include.path .gitaliases")
   end
-
 end
 
 namespace :configs do
