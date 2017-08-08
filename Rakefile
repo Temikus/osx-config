@@ -1,6 +1,9 @@
 require 'logger'
 $LOG_GLOBAL = Logger.new(STDOUT)
 
+#TODO: Steps requiring separate action should wait on input, 
+#such as: Alfred powerpack setup, fonts config, etc.
+
 # Homebrew prefix (SED escaped):
 homebrew_prefix='\/Users\/temikus\/.homebrew'
 homebrew_repo='\/Users\/temikus\/.homebrew\/Homebrew'
@@ -13,18 +16,21 @@ homebrew_packages = ['wget',
                      'ack',
                      'watch',
                      'fzf',
-                     'mpv']
-cask_packages = ['skype',
-                 'alfred',
-                 'atom',
+                     'mpv',
+                     'nmap']
+cask_packages = ['alfred',
+                 'sublime-text-dev',
                  'dropbox',
                  'flux',
                  'sourcetree',
                  'iterm2-beta',
-                 'rubymine']
+                 'jetbrains-toolbox',
+                 'keybase']
 
-## Cask packages that are not installed into ~/Applications and don't need to be zapped
-cask_package_exceptions = ['ksdiff']
+# Cask packages that do not posess a SHA256 checksum
+cask_package_exceptions = ['skype',
+                           'dropbox',
+                           'textual']
 
 # Git settings
 git_config_global_user_name='Artem Yakimenko'
@@ -33,7 +39,7 @@ git_config_global_push_default='simple'
 git_config_global_core_excludesfile='~/.gitignore_global'
 
 #desc 'Install the whole shebang'
-task :install => [:'preinstall:all', :'homebrew:install', :'cask:install', :'config:all', :'git:configure']
+task :install => [:'preinstall:all', :'homebrew:install', :'cask:install', :'config:all', :'git:configure', :'gcloud:install']
 
 namespace :preinstall do
 
@@ -119,12 +125,26 @@ namespace :git do
 end
 
 namespace :config do
-  desc 'Set all configs'
+  desc 'Set mischellaneous configs'
   task :all => [:mac_defaults]
 
   task :mac_defaults do
     $LOG_GLOBAL.info('Setting up Mac defaults. This will require your password...')
     system('./configs/defaults_mac.sh')
   end
-
+  
+  # This should follow the dropbox config and installation, not active
+  task :install_fonts do
+    system("cp ~/Dropbox/Fonts/Inconsolata-dz.otf /Library/Fonts")
+  end
 end
+
+namespace :gcloud do
+  desc 'Install and configure gCloud'
+
+  task :install do
+        $LOG_GLOBAL.info('Installing Google Cloud SDK...')
+        system('curl https://sdk.cloud.google.com | bash')
+  end
+end
+
