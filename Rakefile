@@ -126,11 +126,15 @@ end
 
 namespace :config do
   desc 'Set mischellaneous configs'
-  task :all => [:mac_defaults]
+  task :all => [:mac_defaults, :setup_ssh_keys]
 
   task :mac_defaults do
     $LOG_GLOBAL.info('Setting up Mac defaults. This will require your password...')
     system('./configs/defaults_mac.sh')
+  end
+
+  task :setup_ssh_keys
+    system('ssh-keygen -t rsa -b 4096')
   end
   
   # This should follow the dropbox config and installation, not active
