@@ -133,7 +133,7 @@ namespace :config do
     system('./configs/defaults_mac.sh')
   end
 
-  task :setup_ssh_keys
+  task :setup_ssh_keys do
     system('ssh-keygen -t rsa -b 4096')
   end
   
