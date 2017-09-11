@@ -1,3 +1,4 @@
+require 'io/console'                                                                                                       
 require 'logger'
 $LOG_GLOBAL = Logger.new(STDOUT)
 
@@ -7,6 +8,8 @@ $LOG_GLOBAL = Logger.new(STDOUT)
 # Homebrew prefix (SED escaped):
 homebrew_prefix='\/Users\/temikus\/.homebrew'
 homebrew_repo='\/Users\/temikus\/.homebrew\/Homebrew'
+# PATH vars
+homebrew_path = "/Users/temikus/.homebrew/sbin:/Users/temikus/.homebrew/bin"
 
 # Packages to install
 homebrew_packages = ['wget',
@@ -19,8 +22,7 @@ homebrew_packages = ['wget',
                      'mpv',
                      'nmap']
 cask_packages = ['alfred',
-                 'sublime-text-dev',
-                 'dropbox',
+                 'sublime-text',
                  'flux',
                  'sourcetree',
                  'iterm2-beta',
@@ -38,24 +40,39 @@ git_config_global_user_email='code@temik.me'
 git_config_global_push_default='simple'
 git_config_global_core_excludesfile='~/.gitignore_global'
 
+# Helper module
+def continue(message = nil)
+  puts "#{message}" if message                                                                                                               
+  print "Press any key to continue..."                                                                                                    
+  STDIN.getch                                                                                                              
+  print "            \r" # extra space to overwrite in case next sentence is short                                                                                                              
+end  
+
 #desc 'Install the whole shebang'
-task :install => [:'preinstall:all', :'homebrew:install', :'cask:install', :'config:all', :'git:configure', :'gcloud:install']
+task :install => [:'preinstall:all', 
+                  :'homebrew:install',
+                  :'cask:install',
+                  :'config:all',
+                  :'git:configure',
+                  :'gcloud:install']
 
 namespace :preinstall do
 
   desc 'Run all preinstall tasks'
-  task :all => [:update_submodules]
+  task :all => [:update_submodules, :xcode_select]
 
   desc 'Recursively update all submodules'
   task :update_submodules do
     $LOG_GLOBAL.info('Setting up git submodules...')
     system('git submodule update --init --recursive')
+    continue
   end
 
   desc 'Install Xcode CLI tools'
   task :xcode_select do
     $LOG.info('Installing Xcode CLI tools...')
     system('xcode-select --install')
+    continue
   end
 end
 
@@ -71,14 +88,19 @@ namespace :homebrew do
     system("sed -i .bak 's/HOMEBREW_PREFIX = .*/HOMEBREW_PREFIX = \"#{homebrew_prefix}\".freeze/' /tmp/homebrew_install.rb")
     system("sed -i .bak 's/HOMEBREW_REPOSITORY = .*/HOMEBREW_REPOSITORY = \"#{homebrew_repo}\".freeze/' /tmp/homebrew_install.rb")
     system('ruby /tmp/homebrew_install.rb')
-    #TODO: This is not working right, need to have something stop here and ask to reset the terminal
-    #+ separate the stages of the install into stage1/stage2
-    `source ~/.zshrc`
+    #TODO: Check if this is working right next time
+    puts "The terminal will attempt to set the correct path variables"
+    continue
+    ENV['PATH'] = "#{homebrew_path}:#{ENV['PATH']}"
+    continue
+    #Tap alternative versions repo for sublime, iterm, etc.
+    system("brew tap caskroom/versions")
   end
 
   desc 'Install Homebrew packages'
   task :install_homebrew_packages do
     $LOG_GLOBAL.info('Installing Homebrew packages...')
+    continue
     homebrew_packages.each do |package|
        system("brew install #{package}")
     end
@@ -88,10 +110,11 @@ end
 
 namespace :cask do
   desc 'Install Cask and packages'
-  task :install => [:install_cask_packages ]
+  task :install => [:install_cask_packages]
 
   task :install_cask_packages do
     $LOG_GLOBAL.info('Installing Cask packages...')
+    continue
     cask_packages.each do |package|
       system("brew cask install --require-sha #{package}")
     end
@@ -111,6 +134,7 @@ namespace :git do
   desc 'Set Git identity'
   task :set_identity do
     $LOG_GLOBAL.info('Setting up git identity...')
+    continue
     system("git config --global user.name #{git_config_global_user_name}")
     system("git config --global user.email #{git_config_global_user_email}")
   end
@@ -118,6 +142,7 @@ namespace :git do
   desc 'Set Git defaults'
   task :set_defaults do
     $LOG_GLOBAL.info('Setting up git settings...')
+    continue
     system("git config --global push.default #{git_config_global_push_default}")
     system("git config --global core.excludesfile #{git_config_global_core_excludesfile}")
     system("git config --global include.path .gitaliases")
@@ -130,10 +155,12 @@ namespace :config do
 
   task :mac_defaults do
     $LOG_GLOBAL.info('Setting up Mac defaults. This will require your password...')
+    continue
     system('./configs/defaults_mac.sh')
   end
 
   task :setup_ssh_keys do
+    $LOG_GLOBAL.info('Generating SSH keys...')
     system('ssh-keygen -t rsa -b 4096')
   end
   
@@ -145,10 +172,17 @@ end
 
 namespace :gcloud do
   desc 'Install and configure gCloud'
+  task :install => [:install_gcloud, :install_gcloud_components]
 
-  task :install do
-        $LOG_GLOBAL.info('Installing Google Cloud SDK...')
-        system('curl https://sdk.cloud.google.com | bash')
+  task :install_gcloud do
+    $LOG_GLOBAL.info('Installing Google Cloud SDK...')
+    continue
+    system('curl https://sdk.cloud.google.com | bash')
+  end
+
+  task :install_gcloud_components do
+    $LOG_GLOBAL.info('Installing Google Cloud SDK...')
+    continue
+    system('gcloud components install kubectl')
   end
 end
-
