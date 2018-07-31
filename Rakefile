@@ -15,10 +15,10 @@ homebrew_path = '/Users/temikus/.homebrew/sbin:/Users/temikus/.homebrew/bin'
 
 # Packages to install
 homebrew_packages = %w(wget mtr autojump zsh-syntax-highlighting ack watch fzf mpv nmap)
-cask_packages = %w(alfred sublime-text flux sourcetree iterm2-beta jetbrains-toolbox keybase)
+cask_packages = %w(alfred flux fork iterm2-beta jetbrains-toolbox keybase)
 
 # Cask packages that do not posess a SHA256 checksum
-cask_package_exceptions = %w(skype dropbox textual)
+cask_package_exceptions = %w(skype dropbox)
 
 # Git settings
 git_config_global_user_name='Artem Yakimenko'
