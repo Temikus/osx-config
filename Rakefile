@@ -4,10 +4,13 @@ $LOG_GLOBAL = Logger.new(STDOUT)
 
 #TODO: Steps requiring separate action should wait on input(e.g Alfred powerpack , fonts config, etc.)
 
-# Homebrew prefix (SED escaped):
+# Install into a custom prefix?
+homebrew_custom_prefix = false
+
+# If installing to a custom Homebrew prefix (SED escaped):
 homebrew_prefix='\/Users\/temikus\/.homebrew'
 homebrew_repo='\/Users\/temikus\/.homebrew\/Homebrew'
-# PATH vars
+# PATH vars for custom prefix
 homebrew_path = '/Users/temikus/.homebrew/sbin:/Users/temikus/.homebrew/bin'
 
 # Packages to install
@@ -66,15 +69,20 @@ namespace :homebrew do
 
   desc 'Install Homebrew'
   task :install_homebrew do
-    $LOG_GLOBAL.info('Installing Homebrew...')
-    system('curl -L https://raw.githubusercontent.com/Homebrew/install/master/install -o /tmp/homebrew_install.rb')
-    system("sed -i .bak 's/HOMEBREW_PREFIX = .*/HOMEBREW_PREFIX = \"#{homebrew_prefix}\".freeze/' /tmp/homebrew_install.rb")
-    system("sed -i .bak 's/HOMEBREW_REPOSITORY = .*/HOMEBREW_REPOSITORY = \"#{homebrew_repo}\".freeze/' /tmp/homebrew_install.rb")
-    system('ruby /tmp/homebrew_install.rb')
-    #TODO: Check if this is working right next time
-    puts 'The terminal will attempt to set the correct path variables'
-    continue
-    ENV['PATH'] = "#{homebrew_path}:#{ENV['PATH']}"
+    if homebrew_custom_prefix
+      $LOG_GLOBAL.info('Installing Homebrew into a custom prefix...')
+      system('curl -L https://raw.githubusercontent.com/Homebrew/install/master/install -o /tmp/homebrew_install.rb')
+      system("sed -i .bak 's/HOMEBREW_PREFIX = .*/HOMEBREW_PREFIX = \"#{homebrew_prefix}\".freeze/' /tmp/homebrew_install.rb")
+      system("sed -i .bak 's/HOMEBREW_REPOSITORY = .*/HOMEBREW_REPOSITORY = \"#{homebrew_repo}\".freeze/' /tmp/homebrew_install.rb")
+      system('ruby /tmp/homebrew_install.rb')
+      #TODO: Check if this is working right next time
+      puts 'The terminal will attempt to set the correct path variables'
+      continue
+      ENV['PATH'] = "#{homebrew_path}:#{ENV['PATH']}"
+    else
+      $LOG_GLOBAL.info('Installing Homebrew...')
+      system('/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"')
+    end
     continue
     #Tap alternative versions repo for sublime, iterm, etc.
     system('brew tap caskroom/versions')
