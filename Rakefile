@@ -16,6 +16,7 @@ homebrew_packages = ['wget',
                      'mtr',
                      'autojump',
                      'zsh-syntax-highlighting',
+                     'zsh-completion',
                      'ack',
                      'watch',
                      'fzf',
@@ -161,7 +162,7 @@ namespace :config do
 
   task :setup_ssh_keys do
     $LOG_GLOBAL.info('Generating SSH keys...')
-    system('ssh-keygen -t rsa -b 4096')
+    system('ssh-keygen -o -t rsa -b 4096')
   end
   
   # This should follow the dropbox config and installation, not active
