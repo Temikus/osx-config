@@ -2,38 +2,23 @@ require 'io/console'
 require 'logger'
 $LOG_GLOBAL = Logger.new(STDOUT)
 
-#TODO: Steps requiring separate action should wait on input, 
-#such as: Alfred powerpack setup, fonts config, etc.
+#TODO: Steps requiring separate action should wait on input(e.g Alfred powerpack , fonts config, etc.)
 
-# Homebrew prefix (SED escaped):
+# Install into a custom prefix?
+homebrew_custom_prefix = false
+
+# If installing to a custom Homebrew prefix (SED escaped):
 homebrew_prefix='\/Users\/temikus\/.homebrew'
 homebrew_repo='\/Users\/temikus\/.homebrew\/Homebrew'
-# PATH vars
-homebrew_path = "/Users/temikus/.homebrew/sbin:/Users/temikus/.homebrew/bin"
+# PATH vars for custom prefix
+homebrew_path = '/Users/temikus/.homebrew/sbin:/Users/temikus/.homebrew/bin'
 
 # Packages to install
-homebrew_packages = ['wget',
-                     'mtr',
-                     'autojump',
-                     'zsh-syntax-highlighting',
-                     'zsh-completion',
-                     'ack',
-                     'watch',
-                     'fzf',
-                     'mpv',
-                     'nmap']
-cask_packages = ['alfred',
-                 'sublime-text',
-                 'flux',
-                 'sourcetree',
-                 'iterm2-beta',
-                 'jetbrains-toolbox',
-                 'keybase']
+homebrew_packages = %w(wget mtr autojump zsh-syntax-highlighting ack watch fzf mpv nmap)
+cask_packages = %w(alfred flux fork iterm2-beta jetbrains-toolbox keybase)
 
 # Cask packages that do not posess a SHA256 checksum
-cask_package_exceptions = ['skype',
-                           'dropbox',
-                           'textual']
+cask_package_exceptions = %w(skype dropbox)
 
 # Git settings
 git_config_global_user_name='Artem Yakimenko'
@@ -44,7 +29,7 @@ git_config_global_core_excludesfile='~/.gitignore_global'
 # Helper module
 def continue(message = nil)
   puts "#{message}" if message                                                                                                               
-  print "Press any key to continue..."                                                                                                    
+  print 'Press any key to continue...'
   STDIN.getch                                                                                                              
   print "            \r" # extra space to overwrite in case next sentence is short                                                                                                              
 end  
@@ -71,7 +56,7 @@ namespace :preinstall do
 
   desc 'Install Xcode CLI tools'
   task :xcode_select do
-    $LOG.info('Installing Xcode CLI tools...')
+    $LOG_GLOBAL.info('Installing Xcode CLI tools...')
     system('xcode-select --install')
     continue
   end
@@ -84,18 +69,23 @@ namespace :homebrew do
 
   desc 'Install Homebrew'
   task :install_homebrew do
-    $LOG_GLOBAL.info('Installing Homebrew...')
-    system('curl -L https://raw.githubusercontent.com/Homebrew/install/master/install -o /tmp/homebrew_install.rb')
-    system("sed -i .bak 's/HOMEBREW_PREFIX = .*/HOMEBREW_PREFIX = \"#{homebrew_prefix}\".freeze/' /tmp/homebrew_install.rb")
-    system("sed -i .bak 's/HOMEBREW_REPOSITORY = .*/HOMEBREW_REPOSITORY = \"#{homebrew_repo}\".freeze/' /tmp/homebrew_install.rb")
-    system('ruby /tmp/homebrew_install.rb')
-    #TODO: Check if this is working right next time
-    puts "The terminal will attempt to set the correct path variables"
-    continue
-    ENV['PATH'] = "#{homebrew_path}:#{ENV['PATH']}"
+    if homebrew_custom_prefix
+      $LOG_GLOBAL.info('Installing Homebrew into a custom prefix...')
+      system('curl -L https://raw.githubusercontent.com/Homebrew/install/master/install -o /tmp/homebrew_install.rb')
+      system("sed -i .bak 's/HOMEBREW_PREFIX = .*/HOMEBREW_PREFIX = \"#{homebrew_prefix}\".freeze/' /tmp/homebrew_install.rb")
+      system("sed -i .bak 's/HOMEBREW_REPOSITORY = .*/HOMEBREW_REPOSITORY = \"#{homebrew_repo}\".freeze/' /tmp/homebrew_install.rb")
+      system('ruby /tmp/homebrew_install.rb')
+      #TODO: Check if this is working right next time
+      puts 'The terminal will attempt to set the correct path variables'
+      continue
+      ENV['PATH'] = "#{homebrew_path}:#{ENV['PATH']}"
+    else
+      $LOG_GLOBAL.info('Installing Homebrew...')
+      system('/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"')
+    end
     continue
     #Tap alternative versions repo for sublime, iterm, etc.
-    system("brew tap caskroom/versions")
+    system('brew tap caskroom/versions')
   end
 
   desc 'Install Homebrew packages'
@@ -146,7 +136,7 @@ namespace :git do
     continue
     system("git config --global push.default #{git_config_global_push_default}")
     system("git config --global core.excludesfile #{git_config_global_core_excludesfile}")
-    system("git config --global include.path .gitaliases")
+    system('git config --global include.path .gitaliases')
   end
 end
 
@@ -167,7 +157,7 @@ namespace :config do
   
   # This should follow the dropbox config and installation, not active
   task :install_fonts do
-    system("cp ~/Dropbox/Fonts/Inconsolata-dz.otf /Library/Fonts")
+    system('cp ~/Dropbox/Fonts/Inconsolata-dz.otf /Library/Fonts')
   end
 end
 
