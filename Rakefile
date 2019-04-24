@@ -15,7 +15,7 @@ homebrew_path = '/Users/temikus/.homebrew/sbin:/Users/temikus/.homebrew/bin'
 
 # Packages to install
 homebrew_packages = %w(wget mtr autojump zsh-syntax-highlighting ack watch fzf nmap)
-cask_packages = %w(alfred flux fork iterm2-beta jetbrains-toolbox keybase mpv)
+cask_packages = %w(alfred flux fork iterm2-beta jetbrains-toolbox keybase mpv slack)
 
 # Cask packages that do not posess a SHA256 checksum
 cask_package_exceptions = %w(skype dropbox)
