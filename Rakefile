@@ -59,6 +59,9 @@ namespace :preinstall do
     $LOG_GLOBAL.info('Installing Xcode CLI tools...')
     system('xcode-select --install')
     continue
+    $LOG_GLOBAL.info('Running Xcode license agreement check...')
+    system('sudo xcodebuild -license')
+    continue
   end
 end
 
