@@ -6,9 +6,6 @@ sudo -v
 # Keep-alive: update existing `sudo` time stamp until configurator has finished
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
-# Set dock behaviour to minimize windows to application icon
-defaults write com.apple.dock minimize-to-application -bool yes
-
 # Save to disk (not to iCloud) by default
 defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
 
