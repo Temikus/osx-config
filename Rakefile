@@ -45,14 +45,7 @@ task :install => [:'preinstall:all',
 namespace :preinstall do
 
   desc 'Run all preinstall tasks'
-  task :all => [:update_submodules, :xcode_select]
-
-  desc 'Recursively update all submodules'
-  task :update_submodules do
-    $LOG_GLOBAL.info('Setting up git submodules...')
-    system('git submodule update --init --recursive')
-    continue
-  end
+  task :all => [:xcode_select]
 
   desc 'Install Xcode CLI tools'
   task :xcode_select do
