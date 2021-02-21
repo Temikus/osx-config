@@ -1,6 +1,6 @@
-require 'io/console'                                                                                                       
+require 'io/console'
 require 'logger'
-$LOG_GLOBAL = Logger.new(STDOUT)
+$LOG = Logger.new(STDOUT)
 
 #TODO: Steps requiring separate action should wait on input(e.g Alfred powerpack , fonts config, etc.)
 
@@ -13,12 +13,8 @@ homebrew_repo='\/Users\/temikus\/.homebrew\/Homebrew'
 # PATH vars for custom prefix
 homebrew_path = '/Users/temikus/.homebrew/sbin:/Users/temikus/.homebrew/bin'
 
-# Packages to install
-homebrew_packages = %w(wget mtr autojump zsh-syntax-highlighting ack watch fzf nmap)
-cask_packages = %w(alfred flux fork iterm2-beta jetbrains-toolbox keybase mpv slack)
-
-# Cask packages that do not posess a SHA256 checksum
-cask_package_exceptions = %w(skype dropbox)
+# Dotfiles settings
+dotfiles_path = '/Users/temikus/.dotfiles'
 
 # Git settings
 git_config_global_user_name='Artem Yakimenko'
@@ -28,16 +24,15 @@ git_config_global_core_excludesfile='~/.gitignore_global'
 
 # Helper module
 def continue(message = nil)
-  puts "#{message}" if message                                                                                                               
+  puts "#{message}" if message
   print 'Press any key to continue...'
-  STDIN.getch                                                                                                              
-  print "            \r" # extra space to overwrite in case next sentence is short                                                                                                              
-end  
+  STDIN.getch
+  print "            \r" # extra space to overwrite in case next sentence is short
+end
 
 #desc 'Install the whole shebang'
-task :install => [:'preinstall:all', 
+task :install => [:'preinstall:all',
                   :'homebrew:install',
-                  :'cask:install',
                   :'config:all',
                   :'git:configure',
                   :'gcloud:install']
@@ -49,10 +44,10 @@ namespace :preinstall do
 
   desc 'Install Xcode CLI tools'
   task :xcode_select do
-    $LOG_GLOBAL.info('Installing Xcode CLI tools...')
+    $LOG.info('Installing Xcode CLI tools...')
     system('xcode-select --install')
     continue
-    $LOG_GLOBAL.info('Running Xcode license agreement check...')
+    $LOG.info('Running Xcode license agreement check...')
     system('sudo xcodebuild -license')
     continue
   end
@@ -66,7 +61,7 @@ namespace :homebrew do
   desc 'Install Homebrew'
   task :install_homebrew do
     if homebrew_custom_prefix
-      $LOG_GLOBAL.info('Installing Homebrew into a custom prefix...')
+      $LOG.info('Installing Homebrew into a custom prefix...')
       system('curl -L https://raw.githubusercontent.com/Homebrew/install/master/install -o /tmp/homebrew_install.rb')
       system("sed -i .bak 's/HOMEBREW_PREFIX = .*/HOMEBREW_PREFIX = \"#{homebrew_prefix}\".freeze/' /tmp/homebrew_install.rb")
       system("sed -i .bak 's/HOMEBREW_REPOSITORY = .*/HOMEBREW_REPOSITORY = \"#{homebrew_repo}\".freeze/' /tmp/homebrew_install.rb")
@@ -76,7 +71,7 @@ namespace :homebrew do
       continue
       ENV['PATH'] = "#{homebrew_path}:#{ENV['PATH']}"
     else
-      $LOG_GLOBAL.info('Installing Homebrew...')
+      $LOG.info('Installing Homebrew...')
       system('/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"')
     end
     continue
@@ -86,32 +81,13 @@ namespace :homebrew do
 
   desc 'Install Homebrew packages'
   task :install_homebrew_packages do
-    $LOG_GLOBAL.info('Installing Homebrew packages...')
+    $LOG.info('Installing Homebrew packages...')
     continue
-    homebrew_packages.each do |package|
-       system("brew install #{package}")
-    end
+
+    Dir.chdir(dotfiles_path){
+      %x[#{'brew bundle'}]
+    }
   end
-
-end
-
-namespace :cask do
-  desc 'Install Cask and packages'
-  task :install => [:install_cask_packages]
-
-  task :install_cask_packages do
-    $LOG_GLOBAL.info('Installing Cask packages...')
-    continue
-    cask_packages.each do |package|
-      system("brew cask install --require-sha #{package}")
-    end
-
-    $LOG_GLOBAL.info('Installing Cask exceptions')
-    cask_package_exceptions.each do |package|
-      system("brew cask install #{package}")
-    end
-  end
-
 end
 
 namespace :git do
@@ -120,7 +96,7 @@ namespace :git do
 
   desc 'Set Git identity'
   task :set_identity do
-    $LOG_GLOBAL.info('Setting up git identity...')
+    $LOG.info('Setting up git identity...')
     continue
     system("git config --global user.name #{git_config_global_user_name}")
     system("git config --global user.email #{git_config_global_user_email}")
@@ -128,7 +104,7 @@ namespace :git do
 
   desc 'Set Git defaults'
   task :set_defaults do
-    $LOG_GLOBAL.info('Setting up git settings...')
+    $LOG.info('Setting up git settings...')
     continue
     system("git config --global push.default #{git_config_global_push_default}")
     system("git config --global core.excludesfile #{git_config_global_core_excludesfile}")
@@ -140,38 +116,22 @@ namespace :config do
   desc 'Set mischellaneous configs'
   task :all => [:mac_defaults, :setup_ssh_keys]
 
+  task :setup_dropbox do
+    $LOG.info('Login to Dropbox now and wait for the folder to sync...')
+    continue
+  end
+
   task :mac_defaults do
-    $LOG_GLOBAL.info('Setting up Mac defaults. This will require your password...')
+    $LOG.info('Setting up Mac defaults. This will require your password...')
     continue
     system('./configs/defaults_mac.sh')
   end
 
   task :setup_ssh_keys do
     unless File.exists?("#{ENV["HOME"]}/.ssh/id_rsa.pub")
-      $LOG_GLOBAL.info('Generating SSH keys...')
+      $LOG.info('Generating SSH keys...')
       system('ssh-keygen -o -t rsa -b 4096')
     end
   end
-  
-  # This should follow the dropbox config and installation, not active
-  task :install_fonts do
-    system('cp ~/Dropbox/Fonts/Inconsolata-dz.otf /Library/Fonts')
-  end
 end
 
-namespace :gcloud do
-  desc 'Install and configure gCloud'
-  task :install => [:install_gcloud, :install_gcloud_components]
-
-  task :install_gcloud do
-    $LOG_GLOBAL.info('Installing Google Cloud SDK...')
-    continue
-    system('curl https://sdk.cloud.google.com | bash')
-  end
-
-  task :install_gcloud_components do
-    $LOG_GLOBAL.info('Installing Google Cloud SDK...')
-    continue
-    system('gcloud components install kubectl')
-  end
-end
