@@ -114,7 +114,7 @@ end
 
 namespace :config do
   desc 'Set mischellaneous configs'
-  task :all => [:mac_defaults, :setup_ssh_keys]
+  task :all => [:mac_defaults, :setup_ssh_keys, :setup_icloud_folder]
 
   task :setup_dropbox do
     $LOG.info('Login to Dropbox now and wait for the folder to sync...')
@@ -131,6 +131,13 @@ namespace :config do
     unless File.exists?("#{ENV["HOME"]}/.ssh/id_rsa.pub")
       $LOG.info('Generating SSH keys...')
       system('ssh-keygen -o -t rsa -b 4096')
+    end
+  end
+
+  task :setup_icloud_folder do
+    unless Dir.exists?("#{ENV["HOME"]}/iCloud")
+      $LOG.info('Linking iCloud folder into home directory...')
+      system("ln -s #{ENV["HOME"]}/Library/Mobile\ Documents/com~apple~CloudDocs/ #{ENV["HOME"]}/iCloud")
     end
   end
 end
