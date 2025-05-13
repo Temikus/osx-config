@@ -111,9 +111,9 @@ namespace :config do
   end
 
   task :setup_ssh_keys do
-    unless File.exists?("#{ENV["HOME"]}/.ssh/id_rsa.pub")
+    unless Dir["#{ENV["HOME"]}/.ssh/id_*.pub"].any?
       $LOG.info('Generating SSH keys...')
-      system('ssh-keygen -o -t rsa -b 4096')
+      system('ssh-keygen -t ed25519')
     end
   end
 
