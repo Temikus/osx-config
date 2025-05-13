@@ -120,7 +120,7 @@ namespace :config do
   task :setup_icloud_folder do
     unless Dir.exists?("#{ENV["HOME"]}/iCloud")
       $LOG.info('Linking iCloud folder into home directory...')
-      system("ln -s #{ENV["HOME"]}/Library/Mobile\ Documents/com~apple~CloudDocs/ #{ENV["HOME"]}/iCloud")
+      system("ln -s \"#{ENV["HOME"]}/Library/Mobile\ Documents/com~apple~CloudDocs/\" #{ENV["HOME"]}/iCloud")
     end
   end
 end
