@@ -117,6 +117,12 @@ namespace :config do
     end
   end
 
+  task :setup_fonts do
+    $LOG.info('Adding custom fonts...')
+    continue
+    system('cp ~/Dropbox/Fonts/* ~/Library/Fonts/')
+  end
+
   task :setup_icloud_folder do
     unless Dir.exists?("#{ENV["HOME"]}/iCloud")
       $LOG.info('Linking iCloud folder into home directory...')
