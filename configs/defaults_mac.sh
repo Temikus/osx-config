@@ -41,6 +41,15 @@ sudo systemsetup -settimezone "Australia/Sydney" > /dev/null
 # Enable HiDPI display modes (requires restart)
 #sudo defaults write /Library/Preferences/com.apple.windowserver DisplayResolutionEnabled -bool true
 
+###############################################################################
+# Finder                                                                      #
+###############################################################################
+
+# Always open everything in Finder's list view
+defaults write com.apple.Finder FXPreferredViewStyle Nlsv
+
+# Allow selection of text in quicklook windows.
+defaults write com.apple.finder QLEnableTextSelection -bool true
 
 # Show icons for hard drives, servers, and removable media on the desktop
 defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true
