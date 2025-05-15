@@ -102,5 +102,51 @@ defaults write com.google.Chrome.canary DisablePrintPreview -bool true
 ###############################################################################
 
 # Set sync folder
-defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string "$HOME/Dropbox/Apps/iTerm" 
+defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string "$HOME/Dropbox/Apps/iTerm"
 defaults write com.googlecode.iterm2.plist LoadPrefsFromCustomFolder -bool TRUE
+
+###############################################################################
+# Amphetamine                                                                 #
+###############################################################################
+
+# Check if Amphetamine is installed
+if ! mas list | grep -q "Amphetamine"; then
+    echo "Amphetamine not installed. Checking for Mac App Store CLI (mas)..."
+    if ! command -v mas &> /dev/null; then
+        echo "Mac App Store CLI (mas) is not installed."
+        read -p "Would you like to install mas using Homebrew? (y/n) " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            if command -v brew &> /dev/null; then
+                echo "Installing mas..."
+                brew install mas
+            else
+                echo "Homebrew is not installed. Please install Homebrew first."
+                echo "Visit https://brew.sh for instructions."
+                exit 1
+            fi
+        else
+            echo "Skipping Amphetamine installation."
+        fi
+    fi
+
+    # Try installing Amphetamine if mas is now available
+    if command -v mas &> /dev/null; then
+        echo "Installing Amphetamine from the Mac App Store..."
+        mas install 937984704
+    fi
+fi
+
+# Make sure Amphetamine is not running as otherwise settings won't apply
+if pgrep -q "Amphetamine"; then
+    echo "Quitting Amphetamine to apply settings..."
+    osascript -e 'tell application "Amphetamine" to quit'
+    sleep 2
+fi
+
+# Set menu bar icon
+defaults write com.if.Amphetamine "Icon Style" 2
+# Disable welcome message
+defaults write com.if.Amphetamine "Show Welcome Window" 0
+# Use 24 hour time format
+defaults write com.if.Amphetamine "Use 24 Hour Clock" 1
