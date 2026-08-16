@@ -2,6 +2,7 @@ require 'io/console'
 require 'logger'
 require 'json'
 require 'fileutils'
+require 'shellwords'
 
 $LOG = Logger.new(STDOUT)
 
@@ -10,7 +11,12 @@ $LOG = Logger.new(STDOUT)
 homebrew_version="4.5.2"
 
 # Dotfiles settings
-dotfiles_path = '/Users/temikus/.dotfiles'
+# osx-config normally lives at ~/.dotfiles/osx-config, so prefer the parent dir when it
+# holds a Brewfile. DOTFILES_PATH overrides for standalone clones.
+dotfiles_path = ENV.fetch('DOTFILES_PATH') do
+  parent = File.expand_path('..', __dir__)
+  File.exist?(File.join(parent, 'Brewfile')) ? parent : File.join(Dir.home, '.dotfiles')
+end
 
 # Git settings
 git_config_global_user_name='Artem Yakimenko'
@@ -18,12 +24,30 @@ git_config_global_user_email='code@temik.me'
 git_config_global_push_default='simple'
 git_config_global_core_excludesfile='~/.gitignore_global'
 
+default_homebrew_prefix = '/opt/homebrew'
+
 # Helper module
 def continue(message = nil)
   puts "#{message}" if message
   print 'Press any key to continue...'
   STDIN.getch
   print "            \r" # extra space to overwrite in case next sentence is short
+end
+
+# Path to an existing brew binary, or nil. Checks PATH first, then the standard prefixes.
+def brew_path
+  on_path = `command -v brew 2>/dev/null`.strip
+  return on_path unless on_path.empty?
+
+  ['/opt/homebrew/bin/brew', '/usr/local/bin/brew'].find { |brew| File.executable?(brew) }
+end
+
+def prompt_yes_no(question, default: false)
+  print "#{question} #{default ? '[Y/n]' : '[y/N]'}: "
+  answer = STDIN.gets.to_s.chomp.strip.downcase
+  return default if answer.empty?
+
+  %w[y yes].include?(answer)
 end
 
 #desc 'Install the whole shebang'
@@ -55,22 +79,52 @@ namespace :homebrew do
 
   desc 'Install Homebrew'
   task :install_homebrew do
-    unless Dir["/opt/homebrew"].any?
+    existing_brew = brew_path
+
+    if existing_brew
+      $LOG.info("Homebrew already installed at #{existing_brew}, skipping install...")
+      next
+    end
+
+    if prompt_yes_no("Install Homebrew into a prefix other than #{default_homebrew_prefix}?")
+      print 'Prefix: '
+      prefix = File.expand_path(STDIN.gets.to_s.chomp.strip)
+
+      $LOG.warn("Non-standard prefixes are unsupported by Homebrew: no bottles, everything builds from source.")
+      $LOG.info("Installing Homebrew #{homebrew_version} into #{prefix}...")
+      FileUtils.mkdir_p(prefix)
+      system("curl -fsSL https://github.com/Homebrew/brew/tarball/#{homebrew_version} | tar xz --strip 1 -C #{prefix.shellescape}")
+      # Make the fresh brew visible to the rest of this rake run
+      ENV['PATH'] = "#{prefix}/bin:#{ENV['PATH']}"
+      $LOG.info("Done. Add #{prefix}/bin to your PATH, e.g. eval \"$(#{prefix}/bin/brew shellenv)\"")
+    else
       $LOG.info('Downloading Homebrew...')
       system("curl -o /tmp/homebrew-installer.pkg https://github.com/Homebrew/brew/releases/download/#{homebrew_version}/Homebrew-#{homebrew_version}.pkg")
       $LOG.info('Installing Homebrew...')
       system('sudo installer -verbose -pkg /tmp/homebrew-installer.pkg -target /')
     end
+
     continue
   end
 
   desc 'Install Homebrew packages'
   task :install_homebrew_packages do
-    $LOG.info('Installing Homebrew packages...')
+    brew = brew_path
+    unless brew
+      $LOG.error('Cannot find brew, skipping package install.')
+      next
+    end
+
+    unless File.exist?(File.join(dotfiles_path, 'Brewfile'))
+      $LOG.error("No Brewfile in #{dotfiles_path}, skipping package install. Set DOTFILES_PATH to override.")
+      next
+    end
+
+    $LOG.info("Installing Homebrew packages from #{dotfiles_path}/Brewfile...")
     continue
 
     Dir.chdir(dotfiles_path){
-      %x[#{'brew bundle'}]
+      system("#{brew.shellescape} bundle")
     }
   end
 end
