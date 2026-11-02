@@ -7,7 +7,7 @@ $LOG = Logger.new(STDOUT)
 
 #TODO: Steps requiring separate action should wait on input(e.g Alfred powerpack , fonts config, etc.)
 
-homebrew_version="4.5.2"
+homebrew_version="7.0.11"
 
 # Dotfiles settings
 # osx-config normally lives at ~/.dotfiles/osx-config, so prefer the parent dir when it
@@ -175,7 +175,7 @@ namespace :homebrew do
     else
       $LOG.info('Downloading Homebrew...')
       # -L: GitHub release downloads redirect, and without it curl saves an empty file.
-      unless system("curl -fL -o /tmp/homebrew-installer.pkg https://github.com/Homebrew/brew/releases/download/#{homebrew_version}/Homebrew-#{homebrew_version}.pkg")
+      unless system("curl -fL -o /tmp/homebrew-installer.pkg https://github.com/Homebrew/brew/releases/download/#{homebrew_version}/Homebrew.pkg")
         $LOG.error('Homebrew download failed, skipping install.')
         next
       end
