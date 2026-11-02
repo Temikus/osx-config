@@ -1,6 +1,5 @@
 require 'io/console'
 require 'logger'
-require 'json'
 require 'fileutils'
 require 'shellwords'
 
@@ -234,12 +233,7 @@ end
 
 namespace :config do
   desc 'Set mischellaneous configs'
-  task :all => [:setup_dropbox, :mac_defaults, :setup_ssh_keys, :setup_fonts, :setup_icloud_folder]
-
-  task :setup_dropbox do
-    $LOG.info('Login to Dropbox now and wait for the folder to sync...')
-    continue
-  end
+  task :all => [:mac_defaults, :setup_ssh_keys, :setup_fonts, :setup_icloud_folder]
 
   task :mac_defaults do
     $LOG.info('Setting up Mac defaults. This will require your password...')
@@ -258,7 +252,7 @@ namespace :config do
   task :setup_fonts do
     $LOG.info('Adding custom fonts...')
     continue
-    critical('font copy') { system('cp ~/Dropbox/Fonts/* ~/Library/Fonts/') }
+    critical('font copy') { FileUtils.cp(Dir[File.join(dotfiles_path, 'fonts', '*')], File.join(Dir.home, 'Library', 'Fonts')) }
   end
 
   task :setup_icloud_folder do
@@ -269,45 +263,6 @@ namespace :config do
       critical('iCloud symlink') do
         system("ln -s \"#{ENV["HOME"]}/Library/Mobile\ Documents/com~apple~CloudDocs/\" #{ENV["HOME"]}/iCloud")
       end
-    end
-  end
-
-  task :configure_claude do |t|
-    $LOG.info('Configuring Claude...')
-    continue
-
-    claude_config_dir = "#{ENV["HOME"]}/Library/Application Support/Claude"
-    claude_config_file = "#{claude_config_dir}/claude_desktop_config.json"
-    dropbox_config_file = "#{ENV["HOME"]}/Dropbox/Apps/Claude/claude_desktop_config.json"
-
-    if File.exist?(claude_config_file)
-      begin
-        config_data = JSON.parse(File.read(claude_config_file))
-        if !config_data.has_key?('mcpServers') || config_data['mcpServers'].empty?
-          $LOG.info('Local config not populated, installing custom config...')
-          critical('Claude config copy') { FileUtils.cp(dropbox_config_file, claude_config_file) }
-        else
-          $LOG.info('Local config found, comparing...')
-          dropbox_config_data = JSON.parse(File.read(dropbox_config_file))
-          if config_data != dropbox_config_data
-            $LOG.info('Local Claude config differs from Dropbox config.')
-            print 'Would you like to replace the local config with the Dropbox version? (y/n): '
-            if STDIN.gets.chomp.downcase == 'y'
-              critical('Claude config copy') { FileUtils.cp(dropbox_config_file, claude_config_file) }
-              $LOG.info('Claude config replaced successfully.')
-            else
-              $LOG.info('Keeping local Claude config.')
-            end
-          else
-            $LOG.info('Claude configs are identical, no action needed.')
-          end
-        end
-      rescue JSON::ParserError => e
-        $LOG.warn("Error parsing Claude config: #{e}")
-        $LOG.info('Bailing out...')
-      end
-    else
-      $LOG.info('Cannot find Claude settings folder...')
     end
   end
 end

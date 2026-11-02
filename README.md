@@ -15,7 +15,7 @@ Munki/Chef/Puppet, but still allowing to use them if needed.
 The available tasks are:
 ```
 cask:install                           -- install cask and packages
-configs:all                            -- set all configs
+config:all                             -- set all configs
 git:configure                          -- set git settings
 git:set_defaults                       -- set git defaults
 git:set_identity                       -- set git identity

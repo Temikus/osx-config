@@ -98,14 +98,6 @@ defaults write com.google.Chrome DisablePrintPreview -bool true
 defaults write com.google.Chrome.canary DisablePrintPreview -bool true
 
 ###############################################################################
-# Setup iTerm                                                                 #
-###############################################################################
-
-# Set sync folder
-defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string "$HOME/Dropbox/Apps/iTerm"
-defaults write com.googlecode.iterm2.plist LoadPrefsFromCustomFolder -bool TRUE
-
-###############################################################################
 # Amphetamine                                                                 #
 ###############################################################################
 
