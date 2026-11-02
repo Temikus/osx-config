@@ -174,7 +174,11 @@ namespace :homebrew do
       $LOG.info("Done. Add #{prefix}/bin to your PATH, e.g. eval \"$(#{prefix}/bin/brew shellenv)\"")
     else
       $LOG.info('Downloading Homebrew...')
-      system("curl -o /tmp/homebrew-installer.pkg https://github.com/Homebrew/brew/releases/download/#{homebrew_version}/Homebrew-#{homebrew_version}.pkg")
+      # -L: GitHub release downloads redirect, and without it curl saves an empty file.
+      unless system("curl -fL -o /tmp/homebrew-installer.pkg https://github.com/Homebrew/brew/releases/download/#{homebrew_version}/Homebrew-#{homebrew_version}.pkg")
+        $LOG.error('Homebrew download failed, skipping install.')
+        next
+      end
       checkpoint # download is resumable, so a bail here is free
       $LOG.info('Installing Homebrew...')
       critical('Homebrew pkg install') { system('sudo installer -verbose -pkg /tmp/homebrew-installer.pkg -target /') }
