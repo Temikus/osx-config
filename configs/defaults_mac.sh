@@ -10,6 +10,8 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
 
 # Disable “natural” (Lion-style) scrolling
+# Logi Options+ overrides this per mouse and defaults to natural. Set it in the
+# app: <device> → Point & Scroll → Scroll wheel → Direction: Standard.
 defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false
 
 # Set language and text formats
