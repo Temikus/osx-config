@@ -17,7 +17,9 @@ defaults write NSGlobalDomain AppleLanguages -array "en-AU" "ru-AU"
 defaults write NSGlobalDomain AppleLocale -string "en_AU"
 
 # Set the timezone; see `sudo systemsetup -listtimezones` for other values
-sudo systemsetup -settimezone "Australia/Sydney" > /dev/null
+# systemsetup prints a spurious "### Error:-99 ... InternetServices.m" on recent macOS
+# even when it succeeds, so drop stderr too.
+sudo systemsetup -settimezone "Australia/Sydney" > /dev/null 2>&1
 
 ###############################################################################
 # Finder                                                                      #

@@ -256,13 +256,18 @@ namespace :config do
   task :setup_fonts do
     $LOG.info('Adding custom fonts...')
     continue
-    critical('font copy') { FileUtils.cp(Dir[File.join(dotfiles_path, 'fonts', '*')], File.join(Dir.home, 'Library', 'Fonts')) }
+    fonts_dir = File.join(Dir.home, 'Library', 'Fonts')
+    critical('font copy') do
+      # A fresh macOS account has no ~/Library/Fonts until a font is installed.
+      FileUtils.mkdir_p(fonts_dir)
+      FileUtils.cp(Dir[File.join(dotfiles_path, 'fonts', '*')], fonts_dir)
+    end
   end
 
   task :setup_icloud_folder do
     $LOG.info('Setting up iCloud folder...')
     continue
-    unless Dir.exists?("#{ENV["HOME"]}/iCloud")
+    unless Dir.exist?("#{ENV["HOME"]}/iCloud")
       $LOG.info('Linking iCloud folder into home directory...')
       critical('iCloud symlink') do
         system("ln -s \"#{ENV["HOME"]}/Library/Mobile\ Documents/com~apple~CloudDocs/\" #{ENV["HOME"]}/iCloud")
