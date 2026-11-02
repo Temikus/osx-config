@@ -265,6 +265,10 @@ namespace :config do
   end
 
   task :setup_icloud_folder do
+    if ENV['OSX_CONFIG_NO_ICLOUD'] == '1'
+      $LOG.info('OSX_CONFIG_NO_ICLOUD=1, skipping iCloud folder.')
+      next
+    end
     $LOG.info('Setting up iCloud folder...')
     continue
     unless Dir.exist?("#{ENV["HOME"]}/iCloud")
